@@ -9,10 +9,22 @@ pub trait Contract {
 
     #[payable("*")]
     #[endpoint]
-    fn donate(&self, org_id: usize) {
-        let org_address = self.orgs().get(&org_id).unwrap_or_else(|| sc_panic!("Organization not found."));
-        let payment = self.call_value().egld_or_single_esdt();
+    fn donate(&self, organization_id: usize) {
+        let payment = self.call_value().egld_value();
+        let caller = self.blockchain().get_caller();
+
+        let organization_wallet = self.organizations().get(organization_id);
         
-        self.increase_balance(&org_address, &payment.token_identifier, payment.token_nonce, &payment.amount);
+        self.send().direct(&organization_wallet, &EgldOrEsdtTokenIdentifier::egld(), 0, &payment);
     }
+
+    #[only_owner]
+    #[endpoint(addOrganization)]
+    fn add_organization(&self, address: &ManagedAddress) {
+        self.organizations().push(&address);
+    }
+
+    #[view(getOrganizations)]
+    #[storage_mapper("organizations")]
+    fn organizations(&self) -> VecMapper<ManagedAddress>;
 }
