@@ -43,12 +43,12 @@ xSuite provides an intuitive Command Line Interface (CLI) for seamless contract 
     ```
 
 For a comprehensive understanding of all available commands, run:
-    ```bash
+    ```
     xsuite --help
     ```
 
 To get specific help for a particular command, append `--help` to the command, like:
-    ```bash
+    ```
     xsuite new --help
     ```
 
