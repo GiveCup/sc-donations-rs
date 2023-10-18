@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            0
+// Endpoints:                            5
 // Async Callback (empty):               1
-// Total number of exported functions:   2
+// Total number of exported functions:   7
 
 #![no_std]
 #![feature(lang_items)]
@@ -18,6 +18,11 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     contract
     (
+        add_project
+        add_matching_funds
+        contribute
+        calculate_match
+        distribute_funds
     )
 }
 
