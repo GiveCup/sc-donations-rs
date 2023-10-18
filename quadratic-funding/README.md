@@ -1,81 +1,45 @@
-# 'blank' contract
+# quadratic-funding-rs
 
-An empty contract that comes fully set up with tests and blockchain interactions.
+## Abstract
 
-To create a copy of the 'blank' contract on your computer:
+Quadratic Funding is an algorithmic method to allocate funds in a way that promotes fair distribution and incentivizes public goods. The underlying principle is that the societal impact of public goods is proportional to the square of the sum of the square roots of individual contributions. This means that projects which are widely supported by a large number of small contributions will receive more funding than those supported by a few large ones.
 
-```
-xsuite new --dir my-contract
-cd my-contract
-```
+By using this contract, projects can receive funds in a way that reflects both the amount and the breadth of support they have, providing a democratic approach to fund distribution.
 
-Note that `xsuite` and Rust must be installed on your computer. To install, run:
+## Calculations
 
-```
-npm install -g xsuite
-xsuite install-rust
-```
+Given a set of projects with individual contributions, the matched funds for a project is calculated as:
+\[ M*i = (\sum*{j=1}^{n} \sqrt{c\_{ij}})^2 \]
+Where:
 
-## Build contract
+- \( M_i \) = Matched funds for the project i.
+- \( c\_{ij} \) = Contribution of the j-th contributor to the i-th project.
+- \( n \) = Total number of contributors to the project i.
 
-Write the contract logic in `src/lib.rs`. Then build the contract with:
+The essence of this formula ensures that the matched funding grows based on both the amount and the breadth of the support.
 
-```
-npm run build
-```
+## Endpoints
 
-## Test contract
+### init
 
-Write the tests in `tests/contract.test.ts`. Then test the contract with:
-
-```
-npm run test
+```rust
+    #[init]
+    fn init(&self);
 ```
 
-## Interact with contract
+### addProject
 
-Write the interactions in `interact/index.ts`. Then interact with:
-
-- On devnet:
-
-  ```
-  npm run interact:devnet [command]
-  ```
-
-- On testnet:
-
-  ```
-  npm run interact:testnet [command]
-  ```
-
-- On mainnet:
-
-  ```
-  npm run interact:mainnet [command]
-  ```
-
-To list all available commands:
-
-```
-npm run interact:devnet --help
+```rust
+    #[endpoint]
+    fn add_project(&self, project_address: ManagedAddress);
 ```
 
-For example, if you want to deploy the contract on devnet:
+Stores the address in the contract for it to become eligible for contributions and matched funding.
 
-```
-npm run interact:devnet deploy
-```
+### contribute
 
-## Wallet & Funding
-
-To create a new keystore wallet at path `wallet.json`:
-
-```
-xsuite new-wallet --wallet wallet.json
-```
-
-To fund this wallet with 30 xEGLD:
-
-```
-xsuite request-xegld --wallet wallet.json
+```rust
+ #[payable("*")]
+    #[endpoint]
+    fn contribute(&self, project_address: ManagedAddress);
 ```
