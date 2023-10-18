@@ -8,13 +8,15 @@ By using this contract, projects can receive funds in a way that reflects both t
 
 ## Calculations
 
-Given a set of projects with individual contributions, the matched funds for a project is calculated as:
-\[ M*i = (\sum*{j=1}^{n} \sqrt{c\_{ij}})^2 \]
-Where:
+Given a set of projects with individual contributions, the matched funds for a project is calculated using the following formula:
 
-- \( M_i \) = Matched funds for the project i.
-- \( c\_{ij} \) = Contribution of the j-th contributor to the i-th project.
-- \( n \) = Total number of contributors to the project i.
+For a project `i`:
+M(i) = (sum(sqrt(c(i,j)) for j=1 to n))^2
+
+Where:
+- M(i) is the matched funds for the project `i`.
+- c(i,j) is the contribution of the j-th contributor to the i-th project.
+- n is the total number of contributors to the project `i`.
 
 The essence of this formula ensures that the matched funding grows based on both the amount and the breadth of the support.
 
