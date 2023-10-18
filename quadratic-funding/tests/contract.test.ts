@@ -50,23 +50,64 @@ test("Test", async () => {
     funcArgs: [e.U64(1 * 10 ** 18)],
   });
 
+  const result3 = await deployer.callContract({
+    callee: contract,
+    gasLimit: 20_000_000,
+    funcName: "setProjectContributions",
+    funcArgs: [
+      e.Addr("erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p"),
+    ],
+    value: 1_000_000_000n,
+  });
+
+  const result4 = await deployer.callContract({
+    callee: contract,
+    gasLimit: 20_000_000,
+    funcName: "calculateRawMatch",
+    funcArgs: [
+      e.Addr("erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p"),
+    ],
+  });
+
   const { returnData: matchingFund } = await world.query({
     callee: contract,
     funcName: "getMatchingFund",
   });
 
-  const {
-    returnData: totalRawMatch,
-    returnCode,
-    returnMessage,
-  } = await world.query({
+  const { returnData: totalRawMatch } = await world.query({
     callee: contract,
     funcName: "getTotalRawMatch",
+  });
+
+  const { returnData: getRawMatch } = await world.query({
+    callee: contract,
+    funcName: "getRawMatch",
+    funcArgs: [
+      e.Addr("erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p"),
+    ],
+  });
+
+  const { returnData: projectContributions } = await world.query({
+    callee: contract,
+    funcName: "getProjectContributions",
+    funcArgs: [
+      e.Addr("erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p"),
+    ],
   });
 
   console.log(
     "matchingFund, totalRawMatch",
     d.U64().topDecode(matchingFund[0]),
-    d.U64().topDecode(totalRawMatch[0])
+    d.U64().topDecode(totalRawMatch[0]),
+    d.U64().topDecode(getRawMatch[0]),
+    projectContributions,
+    d
+      .List(
+        d.Tuple({
+          contributor: d.Addr(),
+          amount: d.U(),
+        })
+      )
+      .topDecode(projectContributions[0])
   );
 });

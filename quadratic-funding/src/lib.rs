@@ -35,7 +35,7 @@ pub trait QuadraticFundingContract {
     // Allow users to contribute to a project.
     #[payable("*")]
     #[endpoint]
-    fn contribute(&self, project_id: usize) {
+    fn contribute(&self, project_address: ManagedAddress) {
         let payment = self.call_value().egld_value();
 
         require!(payment.deref() > &BigUint::from(0u64), "Payment must be greater than 0");
@@ -43,8 +43,8 @@ pub trait QuadraticFundingContract {
         let caller = self.blockchain().get_caller();
 
         // TODO: handle the case when the project does not exist
-        let project_wallet = self.projects().get(project_id);
-        let contributions = self.project_contributions(project_id);
+        // let project_wallet = self.projects().get(project_address);
+        // let contributions = self.project_contributions(project_address);
 
 
         // Logic to track each user's contributions separately.
@@ -64,8 +64,9 @@ pub trait QuadraticFundingContract {
         // Logic to distribute the matching funds to the projects.
     }
 
-    fn calculate_raw_match(&self, project_id: usize) -> BigUint {
-        let project_contributions = self.project_contributions(project_id);
+    #[endpoint(calculateRawMatch)]
+    fn calculate_raw_match(&self, project_address: ManagedAddress) {
+        let project_contributions = self.project_contributions(project_address.clone());
         let mut total_contributions = BigUint::zero();
 
         for contribution in project_contributions.iter() {
@@ -77,7 +78,7 @@ pub trait QuadraticFundingContract {
 
         let raw_match = (total_contributions * matching_fund) / total_raw_match;
 
-        raw_match
+        self.raw_match(project_address).set(&raw_match);
     }
 
     // storage modifiers
@@ -99,26 +100,39 @@ pub trait QuadraticFundingContract {
         self.projects_raw_match().insert(project_address, raw_match);
     }
 
-    // #[only_owner]
-    // #[endpoint(setProjectContributions)]
-    // fn set_project_contributions(&self, project_id: usize, contributions: Vec<Contribution<Self::Api>>) {
-    //     self.project_contributions(project_id).push(&contributions);
-    // }
+    #[only_owner]
+    #[payable("*")]
+    #[endpoint(setProjectContributions)]
+    fn set_project_contributions(&self, project_address: ManagedAddress) {
+        self.project_contributions(project_address).push(&Contribution {
+            contributor: self.blockchain().get_caller(),
+            amount: self.call_value().egld_value().clone_value(),
+        });
+    }
+
 
     // Structures and mappers for storage
     #[storage_mapper("projects")]
     fn projects(&self) -> VecMapper<ManagedAddress>;
 
+    #[view(getMatchingFund)]
     #[storage_mapper("matching_fund")]
     fn matching_fund(&self) -> SingleValueMapper<BigUint>;
 
+    #[view(getProjectRawMatch)]
     #[storage_mapper("projects_raw_match")]
     fn projects_raw_match(&self) -> MapMapper<ManagedAddress,BigUint>;
 
+    #[view(getTotalRawMatch)]
     #[storage_mapper("total_row_match")]
     fn total_raw_match(&self) -> SingleValueMapper<BigUint>;
 
+    #[view(getRawMatch)]
+    #[storage_mapper("raw_match")]
+    fn raw_match(&self, project_address: ManagedAddress) -> SingleValueMapper<BigUint>;
+
+    #[view(getProjectContributions)]
     #[storage_mapper("project_contributions")]
-    fn project_contributions(&self, project_id: usize) -> VecMapper<Self::Api, Contribution<Self::Api>>;
+    fn project_contributions(&self, project_address: ManagedAddress) -> VecMapper<Contribution<Self::Api>>;
 }
 

@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            5
+// Endpoints:                           15
 // Async Callback (empty):               1
-// Total number of exported functions:   7
+// Total number of exported functions:  17
 
 #![no_std]
 #![feature(lang_items)]
@@ -23,6 +23,16 @@ multiversx_sc_wasm_adapter::endpoints! {
         contribute
         calculate_match
         distribute_funds
+        calculateRawMatch
+        setMatchingFund
+        setTotalRawMatch
+        setProjectRawMatch
+        setProjectContributions
+        getMatchingFund
+        getProjectRawMatch
+        getTotalRawMatch
+        getRawMatch
+        getProjectContributions
     )
 }
 
